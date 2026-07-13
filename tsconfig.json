@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "tsdown.config.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "tsdown.config.ts", "bump.config.ts"],
 }
