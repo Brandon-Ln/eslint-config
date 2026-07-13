@@ -12,7 +12,7 @@ describe.sequential('brandlen config factory', () => {
         withProject({ name: 'plain-ts', dependencies: {} }, () => {
             const configs = brandlen({ vue: false, react: false, nest: false })
             const typedConfig = configs.find((config) => config.name === 'brandlen/ts-type-aware')
-            const sortConfig = configs.find((config) => config.name === 'brandlen/simple-import-sort')
+            const importConfig = configs.find((config) => config.name === 'brandlen/imports')
 
             expect(typedConfig?.rules).toMatchObject({
                 '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'separate-type-imports', prefer: 'type-imports' }],
@@ -22,14 +22,20 @@ describe.sequential('brandlen config factory', () => {
                 '@typescript-eslint/unified-signatures': ['error', { ignoreDifferentlyNamedParameters: true }],
                 '@typescript-eslint/no-non-null-assertion': 'off',
             })
-            expect(sortConfig?.rules).toMatchObject({
+            expect(importConfig?.rules).toMatchObject({
                 'simple-import-sort/imports': 'error',
                 'simple-import-sort/exports': 'error',
                 'sort-imports': 'off',
                 'import/order': 'off',
-            })
-            expect(configs.find((config) => config.name === 'brandlen/imports')?.rules).toMatchObject({
                 'import/exports-last': 'error',
+                'import/no-duplicates': 'error',
+                'import/no-self-import': 'error',
+                'import/no-useless-path-segments': 'error',
+                'import/no-mutable-exports': 'error',
+                'import/no-empty-named-blocks': 'error',
+                'import/no-import-module-exports': 'error',
+                'import/max-dependencies': ['error', { max: 20 }],
+                'import/export': 'error',
             })
         })
     })
