@@ -1,6 +1,6 @@
 {
   "name": "@brandlen/eslint-config",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Personal ESLint flat config for JavaScript and strongly typed TypeScript projects.",
   "license": "MIT",
   "type": "module",
