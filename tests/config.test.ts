@@ -362,4 +362,45 @@ describe.sequential('brandlen config factory', () => {
             expect(output).not.toContain('as string')
         })
     })
+
+    it('auto-detects Prettier and appends the prettier config last when installed', () => {
+        withProject({ name: 'prettier-auto', dependencies: {} }, (project) => {
+            const namesWithout = configNames(brandlen({ vue: false, react: false, nest: false }))
+            expect(namesWithout).not.toContain('brandlen/prettier')
+
+            project.addPackage('prettier', '3.3.0')
+            const configs = brandlen({ vue: false, react: false, nest: false })
+            const names = configNames(configs)
+            expect(names).toContain('brandlen/prettier')
+            expect(names[names.length - 1]).toBe('brandlen/prettier')
+
+            // eslint-config-prettier 用 `0` 或 `'off'` 关闭规则（二者语义等价），
+            // 并且故意不关闭 `arrow-body-style` / `prefer-arrow-callback` 这类
+            // "特殊规则"——交给 eslint-plugin-prettier 处理。此处仅校验它确实
+            // 覆盖了 Vue / React / 通用 三条触发面。
+            const rules = configs.find((config) => config.name === 'brandlen/prettier')?.rules as Record<string, unknown>
+            const assertDisabled = (ruleId: string): void => {
+                expect([0, 'off'], `${ruleId} should be disabled by eslint-config-prettier`).toContain(rules[ruleId])
+            }
+            assertDisabled('vue/html-indent')
+            assertDisabled('vue/max-attributes-per-line')
+            assertDisabled('vue/html-self-closing')
+            assertDisabled('react/jsx-tag-spacing')
+            assertDisabled('curly')
+        })
+    })
+
+    it('rejects explicit Prettier enablement when prettier is not installed', () => {
+        withProject({ name: 'prettier-missing', dependencies: {} }, () => {
+            expect(() => brandlen({ prettier: true })).toThrow('Prettier is enabled, but prettier is not installed')
+        })
+    })
+
+    it('lets explicit false override an installed Prettier package', () => {
+        withProject({ name: 'prettier-disabled', dependencies: {} }, (project) => {
+            project.addPackage('prettier', '3.3.0')
+            const names = configNames(brandlen({ vue: false, react: false, nest: false, prettier: false }))
+            expect(names).not.toContain('brandlen/prettier')
+        })
+    })
 })

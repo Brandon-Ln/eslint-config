@@ -47,6 +47,17 @@ export interface BrandlenOptions {
     vue?: Enabled
     react?: Enabled
     nest?: Enabled
+    /**
+     * 是否在配置数组末尾追加 `eslint-config-prettier`，关闭所有与 Prettier
+     * 冲突的格式化规则（含 `vue/*`、`react/*`、`@typescript-eslint/*` 等触发面）。
+     *
+     * 默认 `'auto'`：探测到项目已安装 `prettier` 包时自动注入，
+     * 并严格置于配置数组最末（`eslint-config-prettier` 的硬性要求）；
+     * 若已装 Prettier 却不想放弃这些 ESLint 格式检查，传 `false` 显式跳过。
+     *
+     * @default 'auto'
+     */
+    prettier?: Enabled
 }
 
 /**

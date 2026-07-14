@@ -15,7 +15,7 @@ export default brandlen({
 })
 ```
 
-`typescript`、`vue`、`react`、`nest` 均支持 `true`、`false`、`'auto'`（默认），`node` 默认为 `false`。`typescript` 在 `'auto'` 时按项目是否安装 TypeScript 启用；设为 `false` 会忽略独立的 TS 文件，设为 `true` 则强制启用。
+`typescript`、`vue`、`react`、`nest`、`prettier` 均支持 `true`、`false`、`'auto'`（默认），`node` 默认为 `false`。`typescript` 在 `'auto'` 时按项目是否安装 TypeScript 启用；设为 `false` 会忽略独立的 TS 文件，设为 `true` 则强制启用。
 
 启用 TS 后保留原有的 JS/TS 混合规则与类型感知 lint。Vue 始终保留 Vue lint；关闭 TS 时，`<script lang="ts">` 只做语法解析。
 
@@ -38,6 +38,10 @@ export default brandlen({
 ```
 
 如需只检测某些目录，推荐通过 ESLint CLI 限定范围而不是在共享配置中收窄——例如在 `package.json` 的 `lint` 脚本中执行 `eslint src/ scripts/`。这样使配置与 ESLint flat-config 的设计哲学一致（配置负责匹配文件，CLI 负责选取运行对象）。
+
+## Prettier 集成
+
+`prettier` 默认采用 `'auto'`：当项目已安装 `prettier` 时，`brandlen` 会在配置数组最末追加 [`eslint-config-prettier`](https://github.com/prettier/eslint-config-prettier) 块，关闭所有会与 Prettier 冲突的格式化规则。依赖已随本包打包，只需自行安装 `prettier` 本体。传 `prettier: false` 可显式跳过。
 
 ## 开发
 

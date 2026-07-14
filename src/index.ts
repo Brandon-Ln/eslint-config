@@ -4,6 +4,7 @@ import { createCoreConfigs, createTypeScriptIgnoreConfigs } from './configs/core
 import { createImportConfigs } from './configs/imports.js'
 import { createNestConfigs } from './configs/nest.js'
 import { createNodeConfigs } from './configs/node.js'
+import { createPrettierConfigs } from './configs/prettier.js'
 import { createReactConfigs } from './configs/react.js'
 import { createTypeScriptConfigs } from './configs/typescript.js'
 import { createVueConfigs } from './configs/vue.js'
@@ -25,6 +26,7 @@ export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfi
     const vueEnabled = resolveVue(options.vue ?? 'auto', cwd)
     const reactEnabled = resolveFeature(options.react ?? 'auto', 'React', 'react', cwd)
     const nestEnabled = resolveFeature(options.nest ?? 'auto', 'Nest', '@nestjs/common', cwd)
+    const prettierEnabled = resolveFeature(options.prettier ?? 'auto', 'Prettier', 'prettier', cwd)
 
     // 基础配置始终注入：核心通用规则与 import 规则；TypeScript 按开关决定。
     const configs: FlatConfig[] = [...createCoreConfigs(cwd, options.ignores)]
@@ -53,6 +55,12 @@ export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfi
 
     if (nestEnabled) {
         configs.push(...createNestConfigs())
+    }
+
+    // Prettier 兼容块必须置于配置数组最末——这是 eslint-config-prettier 的硬性要求，
+    // 否则其后任何块重新开启的格式化规则都会让这里的关闭失效。
+    if (prettierEnabled) {
+        configs.push(...createPrettierConfigs())
     }
 
     // 借助 eslint/config 的 defineConfig 对内部更宽泛的 FlatConfig 做归一化，

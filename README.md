@@ -15,7 +15,7 @@ export default brandlen({
 })
 ```
 
-`typescript`, `vue`, `react`, and `nest` support `true`, `false`, and `'auto'` (default); `node` defaults to `false`. In `'auto'` mode, TypeScript linting follows whether the project installs TypeScript; `false` ignores standalone TS files and `true` forces it on.
+`typescript`, `vue`, `react`, `nest`, and `prettier` support `true`, `false`, and `'auto'` (default); `node` defaults to `false`. In `'auto'` mode, TypeScript linting follows whether the project installs TypeScript; `false` ignores standalone TS files and `true` forces it on.
 
 Enabled TypeScript keeps the existing mixed JS/TS rules and type-aware linting. Vue linting always remains active; with TypeScript off, `<script lang="ts">` is parsed for syntax only.
 
@@ -38,6 +38,10 @@ export default brandlen({
 ```
 
 To lint only a subset of directories, prefer scoping via the ESLint CLI rather than a shared config — e.g. `eslint src/ scripts/` in your `package.json` `lint` script. This keeps the config aligned with ESLint's flat-config philosophy (config matches files; the CLI selects what to run on).
+
+## Prettier integration
+
+`prettier` defaults to `'auto'`: when `prettier` is installed, `brandlen` appends [`eslint-config-prettier`](https://github.com/prettier/eslint-config-prettier) as the last config block, turning off formatting rules that conflict with Prettier. The dependency is bundled — just install `prettier` itself. Pass `prettier: false` to opt out.
 
 ## Development
 
