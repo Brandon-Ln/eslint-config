@@ -8,9 +8,9 @@ import { createReactConfigs } from './configs/react.js'
 import { createTypeScriptConfigs } from './configs/typescript.js'
 import { createVueConfigs } from './configs/vue.js'
 import { resolveFeature, resolveVue } from './detect.js'
-import type { BrandlenOptions, Enabled, FlatConfig, PublicFlatConfig } from './types.js'
+import type { BrandlenOptions, DefaultIgnores, Enabled, FlatConfig, PublicFlatConfig, UserIgnores } from './types.js'
 
-export type { BrandlenOptions, Enabled }
+export type { BrandlenOptions, DefaultIgnores, Enabled, UserIgnores }
 
 /**
  * 根据传入的选项与运行环境的依赖情况，组装出最终的 ESLint flat config 数组。
@@ -27,7 +27,7 @@ export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfi
 
     // 基础配置始终注入：核心通用规则、TypeScript 规则、import 规则
     const configs: FlatConfig[] = [
-        ...createCoreConfigs(cwd),
+        ...createCoreConfigs(cwd, options.ignores),
         ...createTypeScriptConfigs(cwd),
         ...createImportConfigs(),
     ]

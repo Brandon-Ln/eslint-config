@@ -47,6 +47,53 @@ describe.sequential('brandlen config factory', () => {
         })
     })
 
+    it('exposes builtin ignores via a single brandlen/ignores block by default', () => {
+        withProject({ name: 'plain-ts', dependencies: {} }, () => {
+            const ignoresConfig = brandlen({ vue: false, react: false, nest: false })
+                .find((config) => config.name === 'brandlen/ignores')
+
+            expect(ignoresConfig?.ignores).toEqual([
+                '**/.{agents,codex}/skills/**',
+                '**/{__tests__,test,tests}/**',
+            ])
+        })
+    })
+
+    it('appends user ignores without replacing builtin defaults', () => {
+        withProject({ name: 'plain-ts', dependencies: {} }, () => {
+            const ignoresConfig = brandlen({
+                vue: false,
+                react: false,
+                nest: false,
+                ignores: ['dist/**', 'coverage/**'],
+            }).find((config) => config.name === 'brandlen/ignores')
+
+            expect(ignoresConfig?.ignores).toEqual([
+                '**/.{agents,codex}/skills/**',
+                '**/{__tests__,test,tests}/**',
+                'dist/**',
+                'coverage/**',
+            ])
+        })
+    })
+
+    it('lets a function override rewrite the builtin ignores', () => {
+        withProject({ name: 'plain-ts', dependencies: {} }, () => {
+            const ignoresConfig = brandlen({
+                vue: false,
+                react: false,
+                nest: false,
+                ignores: (originals) => [...originals, 'generated/**'],
+            }).find((config) => config.name === 'brandlen/ignores')
+
+            expect(ignoresConfig?.ignores).toEqual([
+                '**/.{agents,codex}/skills/**',
+                '**/{__tests__,test,tests}/**',
+                'generated/**',
+            ])
+        })
+    })
+
     it('detects Vue 3, React, and Nest from installed project dependencies', () => {
         withProject({ name: 'full-stack', dependencies: {} }, (project) => {
             project.addPackage('vue', '3.5.0')

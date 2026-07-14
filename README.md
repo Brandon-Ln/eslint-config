@@ -19,6 +19,26 @@ export default brandlen({
 
 TypeScript type-aware linting and import sorting (with `--fix` support) are integrated by default.
 
+## Ignoring files
+
+`brandlen` always emits a `brandlen/ignores` block that excludes agent skills directories and test directories, alongside any patterns inferred from your project's `.gitignore`. Pass `ignores` (an array, or a function that receives the built-in defaults and returns the final list) to extend or rewrite those defaults:
+
+```js
+// eslint.config.mjs
+import brandlen from '@brandlen/eslint-config'
+
+export default brandlen({
+    ignores: ['dist/**', 'coverage/**'],
+})
+
+// or rewrite the defaults
+export default brandlen({
+    ignores: (defaults) => [...defaults, 'generated/**'],
+})
+```
+
+To lint only a subset of directories, prefer scoping via the ESLint CLI rather than a shared config — e.g. `eslint src/ scripts/` in your `package.json` `lint` script. This keeps the config aligned with ESLint's flat-config philosophy (config matches files; the CLI selects what to run on).
+
 ## Development
 
 - `pnpm build`: Generates artifacts and validates public `exports`, declaration files, and the publishable package.

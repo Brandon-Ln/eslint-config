@@ -19,6 +19,26 @@ export default brandlen({
 
 默认集成 TypeScript 类型感知 lint 与导入排序（支持 `--fix`）。
 
+## 忽略文件
+
+`brandlen` 始终输出一个 `brandlen/ignores` 块，用于排除 agent skills 目录与测试目录，并自动并入项目 `.gitignore` 的忽略规则。可通过 `ignores` 字段（数组，或接收内置默认值并返回最终清单的函数）追加或改写默认忽略项：
+
+```js
+// eslint.config.mjs
+import brandlen from '@brandlen/eslint-config'
+
+export default brandlen({
+    ignores: ['dist/**', 'coverage/**'],
+})
+
+// 或改写默认清单
+export default brandlen({
+    ignores: (defaults) => [...defaults, 'generated/**'],
+})
+```
+
+如需只检测某些目录，推荐通过 ESLint CLI 限定范围而不是在共享配置中收窄——例如在 `package.json` 的 `lint` 脚本中执行 `eslint src/ scripts/`。这样使配置与 ESLint flat-config 的设计哲学一致（配置负责匹配文件，CLI 负责选取运行对象）。
+
 ## 开发
 
 - `pnpm build`：生成产物并校验公开 `exports`、声明文件和发布包。
