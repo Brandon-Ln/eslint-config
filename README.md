@@ -2,7 +2,7 @@
 
 # @brandlen/eslint-config
 
-A personal ESLint 9+ Flat Config: enables JavaScript baseline rules and TypeScript type-aware linting out of the box, with auto-detection of Vue 3, React, or Nest adapters based on project dependencies.
+A personal ESLint 9+ Flat Config: enables JavaScript baseline rules, auto-detects TypeScript type-aware linting, and enables Vue 3, React, or Nest adapters from project dependencies.
 
 ```js
 // eslint.config.mjs
@@ -15,9 +15,9 @@ export default brandlen({
 })
 ```
 
-`vue`, `react`, and `nest` accept `true`, `false`, or `'auto'` (default); `node` defaults to `false`. Setting a switch to `true` requires the corresponding dependency to be present, while `'auto'` enables it based on project dependencies.
+`typescript`, `vue`, `react`, and `nest` support `true`, `false`, and `'auto'` (default); `node` defaults to `false`. In `'auto'` mode, TypeScript linting follows whether the project installs TypeScript; `false` ignores standalone TS files and `true` forces it on.
 
-TypeScript type-aware linting and import sorting (with `--fix` support) are integrated by default.
+Enabled TypeScript keeps the existing mixed JS/TS rules and type-aware linting. Vue linting always remains active; with TypeScript off, `<script lang="ts">` is parsed for syntax only.
 
 ## Ignoring files
 

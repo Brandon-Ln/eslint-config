@@ -1,13 +1,13 @@
 import { defineConfig } from 'eslint/config'
 
-import { createCoreConfigs } from './configs/core.js'
+import { createCoreConfigs, createTypeScriptIgnoreConfigs } from './configs/core.js'
 import { createImportConfigs } from './configs/imports.js'
 import { createNestConfigs } from './configs/nest.js'
 import { createNodeConfigs } from './configs/node.js'
 import { createReactConfigs } from './configs/react.js'
 import { createTypeScriptConfigs } from './configs/typescript.js'
 import { createVueConfigs } from './configs/vue.js'
-import { resolveFeature, resolveVue } from './detect.js'
+import { resolveFeature, resolveTypeScript, resolveVue } from './detect.js'
 import type { BrandlenOptions, DefaultIgnores, Enabled, FlatConfig, PublicFlatConfig, UserIgnores } from './types.js'
 
 export type { BrandlenOptions, DefaultIgnores, Enabled, UserIgnores }
@@ -21,16 +21,22 @@ export type { BrandlenOptions, DefaultIgnores, Enabled, UserIgnores }
  */
 export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfig[] {
     const cwd = process.cwd()
+    const typescriptEnabled = resolveTypeScript(options.typescript ?? 'auto', cwd)
     const vueEnabled = resolveVue(options.vue ?? 'auto', cwd)
     const reactEnabled = resolveFeature(options.react ?? 'auto', 'React', 'react', cwd)
     const nestEnabled = resolveFeature(options.nest ?? 'auto', 'Nest', '@nestjs/common', cwd)
 
-    // 基础配置始终注入：核心通用规则、TypeScript 规则、import 规则
-    const configs: FlatConfig[] = [
-        ...createCoreConfigs(cwd, options.ignores),
-        ...createTypeScriptConfigs(cwd),
-        ...createImportConfigs(),
-    ]
+    // 基础配置始终注入：核心通用规则与 import 规则；TypeScript 按开关决定。
+    const configs: FlatConfig[] = [...createCoreConfigs(cwd, options.ignores)]
+
+    if (typescriptEnabled) {
+        // 保持既有混合项目行为：typescript-eslint recommended 同时覆盖 JS 与 TS。
+        configs.push(...createTypeScriptConfigs(cwd))
+    } else {
+        configs.push(...createTypeScriptIgnoreConfigs())
+    }
+
+    configs.push(...createImportConfigs())
 
     if (options.node) {
         configs.push(...createNodeConfigs())
@@ -38,7 +44,7 @@ export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfi
 
     // 框架相关配置仅在对应依赖存在时按需注入
     if (vueEnabled) {
-        configs.push(...createVueConfigs(cwd))
+        configs.push(...createVueConfigs(cwd, typescriptEnabled))
     }
 
     if (reactEnabled) {

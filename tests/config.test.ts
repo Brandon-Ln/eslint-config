@@ -8,8 +8,9 @@ import brandlen from '../src/index.js'
 import { configNames, hasNodeGlobals, withProject } from './test-utils.js'
 
 describe.sequential('brandlen config factory', () => {
-    it('keeps the prototype rules and import sorting rules', () => {
-        withProject({ name: 'plain-ts', dependencies: {} }, () => {
+    it('keeps the prototype rules and import sorting rules when TypeScript is detected', () => {
+        withProject({ name: 'plain-ts', dependencies: {} }, (project) => {
+            project.addPackage('typescript', '6.0.0')
             const configs = brandlen({ vue: false, react: false, nest: false })
             const typedConfig = configs.find((config) => config.name === 'brandlen/ts-type-aware')
             const importConfig = configs.find((config) => config.name === 'brandlen/imports')
@@ -44,6 +45,70 @@ describe.sequential('brandlen config factory', () => {
         withProject({ name: 'plain-ts', dependencies: {} }, () => {
             expect(() => brandlen({ react: true })).toThrow('React is enabled')
             expect(configNames(brandlen({ vue: false, react: false, nest: false }))).not.toContain('brandlen/react')
+        })
+    })
+
+    it('auto-detects TypeScript and lets explicit true retain its config without the dependency', () => {
+        withProject({ name: 'plain-js', dependencies: {} }, (project) => {
+            expect(configNames(brandlen({ vue: false, react: false, nest: false }))).not.toContain('brandlen/ts-type-aware')
+            expect(configNames(brandlen({ typescript: true, vue: false, react: false, nest: false }))).toContain('brandlen/ts-type-aware')
+
+            project.addPackage('typescript', '6.0.0')
+            expect(configNames(brandlen({ vue: false, react: false, nest: false }))).toContain('brandlen/ts-type-aware')
+        })
+    })
+
+    it('ignores standalone TypeScript files and removes TypeScript rules when disabled', async () => {
+        await withProject({ name: 'typescript-disabled', dependencies: {} }, async (project) => {
+            const jsFile = project.writeFile('script.js', "const pkg = require('pkg')\nconsole.log(pkg)\n")
+            const tsFile = project.writeFile('feature.ts', 'export const value: number = 1\n')
+            const eslint = new ESLint({
+                cwd: project.directory,
+                overrideConfig: brandlen({ typescript: false, node: true, vue: false, react: false, nest: false }),
+                overrideConfigFile: true,
+            })
+            const eslintWithRewrittenIgnores = new ESLint({
+                cwd: project.directory,
+                overrideConfig: brandlen({
+                    typescript: false,
+                    vue: false,
+                    react: false,
+                    nest: false,
+                    ignores: () => [],
+                }),
+                overrideConfigFile: true,
+            })
+
+            const [jsResult] = await eslint.lintFiles([jsFile])
+
+            expect(configNames(brandlen({ typescript: false, vue: false, react: false, nest: false }))).toContain('brandlen/ignore-typescript')
+            expect(configNames(brandlen({ typescript: false, vue: false, react: false, nest: false }))).not.toContain('brandlen/ts-type-aware')
+            expect(await eslint.isPathIgnored(tsFile)).toBe(true)
+            expect(await eslintWithRewrittenIgnores.isPathIgnored(tsFile)).toBe(true)
+            expect(jsResult?.messages).not.toContainEqual(expect.objectContaining({ ruleId: '@typescript-eslint/no-require-imports' }))
+        })
+    })
+
+    it('keeps JavaScript Vue, React, and Nest linting when TypeScript is disabled', async () => {
+        await withProject({ name: 'framework-js', dependencies: {} }, async (project) => {
+            project.addPackage('vue', '3.5.0')
+            project.addPackage('react', '19.2.0')
+            project.addPackage('@nestjs/common', '11.1.0')
+
+            const vueFile = project.writeFile('Component.vue', '<script setup lang="ts">\nconst message: string = \'hello\'\n</script>\n\n<template>{{ message }}</template>\n')
+            const nestFile = project.writeFile('src/users.controller.js', 'export const value = process.pid\n')
+            const tsxFile = project.writeFile('Component.tsx', 'export const Component = () => <div />\n')
+            const eslint = new ESLint({
+                cwd: project.directory,
+                overrideConfig: brandlen({ typescript: false, node: true, vue: true, react: true }),
+                overrideConfigFile: true,
+            })
+            const [vueResult] = await eslint.lintFiles([vueFile])
+
+            expect(configNames(brandlen({ typescript: false, vue: true, react: true }))).not.toContain('brandlen/vue-type-aware')
+            expect(vueResult?.fatalErrorCount).toBe(0)
+            expect(hasNodeGlobals(await eslint.calculateConfigForFile(nestFile))).toBe(true)
+            expect(await eslint.isPathIgnored(tsxFile)).toBe(true)
         })
     })
 
@@ -96,6 +161,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('detects Vue 3, React, and Nest from installed project dependencies', () => {
         withProject({ name: 'full-stack', dependencies: {} }, (project) => {
+            project.addPackage('typescript', '6.0.0')
             project.addPackage('vue', '3.5.0')
             project.addPackage('react', '19.2.0')
             project.addPackage('@nestjs/common', '11.1.0')
@@ -124,6 +190,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('does not provide Node globals to ordinary source files by default', async () => {
         await withProject({ name: 'plain-ts', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             const sourceFile = project.writeFile('src/feature.ts', 'export const value = process.pid\n')
 
             const eslint = new ESLint({
@@ -138,6 +205,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('provides Node globals to all managed file types when node is enabled', async () => {
         await withProject({ name: 'node-project', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             const sourceFiles = ['script.js', 'feature.ts', 'Component.vue']
                 .map((file) => project.writeFile(file, 'export const value = process.pid\n'))
 
@@ -155,6 +223,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('provides Node globals only to conventional Nest files', async () => {
         await withProject({ name: 'nest-project', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             project.addPackage('@nestjs/common', '11.1.0')
             const nestFiles = ['src/users.controller.ts', 'src/users.service.ts', 'src/users.module.ts', 'src/auth.guard.ts']
                 .map((file) => project.writeFile(file, 'export const value = process.pid\n'))
@@ -183,6 +252,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('lints Vue 3 SFCs with the Vue TypeScript adapter', async () => {
         await withProject({ name: 'vue-three', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             project.addPackage('vue', '3.5.0')
             const sourceFile = project.writeFile('Component.vue', '<script setup lang="ts">\nconst message: string = \'hello\'\n</script>\n\n<template>{{ message }}</template>\n')
 
@@ -199,6 +269,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('lints TSX with browser globals and React hooks rules', async () => {
         await withProject({ name: 'react-project', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             project.addPackage('react', '19.2.0')
             const sourceFile = project.writeFile('Component.tsx', [
                 "import { useEffect } from 'react'",
@@ -236,6 +307,7 @@ describe.sequential('brandlen config factory', () => {
         await withProject(
             { name: 'strict-ts-project', dependencies: {} },
             async (project) => {
+                project.addPackage('typescript', '6.0.0')
                 project.writeFile('included.ts', 'export const included = true\n')
                 const sourceFile = project.writeFile('src/outside.ts', 'export const outside = true\n')
 
@@ -254,6 +326,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('applies the consumer project .gitignore', async () => {
         await withProject({ name: 'ignored-file', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             project.writeFile('.gitignore', 'generated.ts\n')
             const sourceFile = project.writeFile('generated.ts', 'export const generated = true\n')
 
@@ -271,6 +344,7 @@ describe.sequential('brandlen config factory', () => {
 
     it('runs typed linting and fixes simple import sorting', async () => {
         await withProject({ name: 'plain-ts', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
             const sourceFile = project.writeFile('example.ts', "import z from 'z'\nimport a from 'a'\n\nconst value: string = 'done'\nconst redundantValue = value as string\n\nexport { z, a, redundantValue }\n")
 
             const eslint = new ESLint({

@@ -22,7 +22,7 @@ export type UserIgnores = string[] | ((originals: DefaultIgnores) => string[])
 
 /**
  * 对外暴露的配置函数入参，控制各可选框架规则集的启用方式。
- * 未传入的字段将采用默认值 `'auto'`。
+ * `vue`、`react`、`nest` 与 `typescript` 未传入时采用默认值 `'auto'`。
  */
 export interface BrandlenOptions {
     /**
@@ -42,6 +42,8 @@ export interface BrandlenOptions {
 
     /** 是否为全部受管代码文件注入 Node.js 运行时全局变量，默认关闭。 */
     node?: boolean
+    /** 是否启用 TypeScript parser、规则与类型感知 lint，默认按项目依赖自动探测。 */
+    typescript?: Enabled
     vue?: Enabled
     react?: Enabled
     nest?: Enabled

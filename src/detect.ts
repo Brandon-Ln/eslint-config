@@ -71,6 +71,20 @@ function resolveFeature(
 }
 
 /**
+ * 决定是否注入 TypeScript 配置。
+ *
+ * 与框架配置不同，显式传入 `true` 时不预检依赖，保持配置工厂同步，
+ * 让 TypeScript parser 在实际 lint 文件时给出其原生错误。
+ */
+function resolveTypeScript(option: Enabled | undefined, cwd: string): boolean {
+    if (option === false) {
+        return false
+    }
+
+    return option === true || findInstalledPackage('typescript', cwd) !== undefined
+}
+
+/**
  * 在 `resolveFeature` 的基础上增加对 Vue 版本的校验：当前仅支持 Vue 3。
  * 若探测到 Vue 2 或解析失败，将抛出明确的错误信息。
  */
@@ -97,4 +111,4 @@ function resolveVue(option: Enabled | undefined, cwd: string): boolean {
     return true
 }
 
-export { findInstalledPackage, resolveFeature, resolveVue }
+export { findInstalledPackage, resolveFeature, resolveTypeScript, resolveVue }

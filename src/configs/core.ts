@@ -4,7 +4,7 @@ import path from 'node:path'
 import { includeIgnoreFile } from '@eslint/compat'
 import eslintJs from '@eslint/js'
 
-import { BUILTIN_IGNORES } from '../constants.js'
+import { BUILTIN_IGNORES, TS_FILES } from '../constants.js'
 import type { FlatConfig, UserIgnores } from '../types.js'
 
 /**
@@ -44,4 +44,19 @@ export function createCoreConfigs(cwd: string, userIgnores?: UserIgnores): FlatC
     )
 
     return configs
+}
+
+/**
+ * 在 TypeScript 显式关闭时全局忽略 TS 文件。
+ *
+ * 此块独立于用户可改写的 `ignores`，保证 `typescript: false` 不会因
+ * ignores 回调返回的新数组而重新让 TS 文件落入 JS parser。
+ */
+export function createTypeScriptIgnoreConfigs(): FlatConfig[] {
+    return [
+        {
+            name: 'brandlen/ignore-typescript',
+            ignores: [...TS_FILES],
+        },
+    ]
 }
