@@ -1,8 +1,12 @@
+import { createRequire } from 'node:module'
+
 import type { Linter } from 'eslint'
-import eslintTs from 'typescript-eslint'
+import type * as TypeScriptESLint from 'typescript-eslint'
 
 import { ROOT_TYPED_CONFIG_FILES, TS_FILES } from '../constants.js'
 import type { FlatConfig } from '../types.js'
+
+const projectRequire = createRequire(import.meta.url)
 
 /**
  * 通用 TypeScript 规则覆盖项，不依赖类型信息即可 生效。
@@ -40,6 +44,7 @@ const customizedTsRulesWithTypeInfo = {
  *    并通过 `projectService` 关联 tsconfig，`allowDefaultProject` 兜底根目录配置文件
  */
 export function createTypeScriptConfigs(cwd: string): FlatConfig[] {
+    const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
     return [
         ...eslintTs.configs.recommended,
         {

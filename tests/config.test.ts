@@ -95,7 +95,7 @@ describe.sequential('brandlen config factory', () => {
             project.addPackage('react', '19.2.0')
             project.addPackage('@nestjs/common', '11.1.0')
 
-            const vueFile = project.writeFile('Component.vue', '<script setup lang="ts">\nconst message: string = \'hello\'\n</script>\n\n<template>{{ message }}</template>\n')
+            const vueFile = project.writeFile('Component.vue', '<script setup>\nconst message = \'hello\'\n</script>\n\n<template>{{ message }}</template>\n')
             const nestFile = project.writeFile('src/users.controller.js', 'export const value = process.pid\n')
             const tsxFile = project.writeFile('Component.tsx', 'export const Component = () => <div />\n')
             const eslint = new ESLint({
