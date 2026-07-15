@@ -23,18 +23,15 @@ const projectRequire = createRequire(import.meta.url)
  *   注入 TS parser、类型感知规则与 projectService。
  */
 export function createVueConfigs(cwd: string, typescriptEnabled: boolean): FlatConfig[] {
-    const sourceSizeConfig: Linter.Config = {
-        name: 'brandlen/vue-source-code-size',
-        files: [...VUE_FILES],
-        rules: {
-            complexity: ['error', { max: 15, variant: 'classic' }],
-            'max-lines': ['error', { max: 700, skipBlankLines: true, skipComments: true }],
-        },
-    }
+    const vueRecommendedConfigs: FlatConfig[] = vuePlugin.configs['flat/recommended']
+        .map((config) => ({
+            ...config,
+            files: config.files ?? [...VUE_FILES],
+        }))
 
     if (!typescriptEnabled) {
         return [
-            ...vuePlugin.configs['flat/recommended'],
+            ...vueRecommendedConfigs,
             {
                 name: 'brandlen/vue',
                 files: [...VUE_FILES],
@@ -42,8 +39,7 @@ export function createVueConfigs(cwd: string, typescriptEnabled: boolean): FlatC
                     globals: globals.browser,
                 },
             } satisfies Linter.Config,
-            sourceSizeConfig,
-        ] as FlatConfig[]
+        ]
     }
 
     const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
@@ -61,7 +57,6 @@ export function createVueConfigs(cwd: string, typescriptEnabled: boolean): FlatC
                 globals: globals.browser,
             },
         } satisfies Linter.Config,
-        sourceSizeConfig,
     ]
 
     const typeAwareConfigs: FlatConfig[] = [
@@ -85,7 +80,7 @@ export function createVueConfigs(cwd: string, typescriptEnabled: boolean): FlatC
     // The helper has normalized these configs at runtime; retain this single
     // compatibility boundary until the upstream declarations converge.
     return defineConfigWithVueTs(
-        vuePlugin.configs['flat/recommended'],
+        vueRecommendedConfigs,
         vueTsConfigs.strictTypeChecked,
         vueTsConfigs.stylisticTypeCheckedOnly,
         ...baseConfigs,

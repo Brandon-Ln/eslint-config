@@ -2,17 +2,20 @@ import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
 import globals from 'globals'
 
+import { JS_FILES, TS_FILES } from '../constants.js'
 import type { FlatConfig } from '../types.js'
 
 const REACT_FILES = ['**/*.{jsx,tsx}']
+const REACT_HOOK_FILES = [...JS_FILES, ...TS_FILES]
 
 /**
- * 构建 React 项目相关配置块，仅作用于 JSX/TSX 文件。
+ * 构建 React 项目相关配置块。
  *
  * 在 `eslint-plugin-react` 的 recommended 与 jsx-runtime 配置基础上：
  * - 注入浏览器全局变量
  * - 将 React 版本设为 `detect` 以自动匹配项目实际版本
- * - 叠加 `eslint-plugin-react-hooks` 的推荐规则
+ * - 叠加作用于全部 JS/TS 文件的 `eslint-plugin-react-hooks` 推荐规则，
+ *   以覆盖不含 JSX 的自定义 Hook
  */
 export function createReactConfigs(): FlatConfig[] {
     const recommended = reactPlugin.configs.flat.recommended
@@ -45,7 +48,7 @@ export function createReactConfigs(): FlatConfig[] {
         {
             ...reactHooksPlugin.configs.flat.recommended,
             name: 'brandlen/react-hooks',
-            files: REACT_FILES,
+            files: REACT_HOOK_FILES,
         },
     ]
 }

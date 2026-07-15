@@ -39,22 +39,13 @@ const customizedTsRulesWithTypeInfo = {
  *
  * 注入层级：
  * 1. `typescript-eslint` 的 recommended 基础规则
- * 2. 源码体积约束：圈复杂度 ≤ 15、单文件 ≤ 700 行
- * 3. 类型感知规则：在 strictTypeChecked 与 stylisticTypeCheckedOnly 基础上叠加自定义规则，
+ * 2. 类型感知规则：在 strictTypeChecked 与 stylisticTypeCheckedOnly 基础上叠加自定义规则，
  *    并通过 `projectService` 关联 tsconfig，`allowDefaultProject` 兜底根目录配置文件
  */
 export function createTypeScriptConfigs(cwd: string): FlatConfig[] {
     const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
     return [
         ...eslintTs.configs.recommended,
-        {
-            name: 'brandlen/source-code-size',
-            files: [...TS_FILES],
-            rules: {
-                complexity: ['error', { max: 15, variant: 'classic' }],
-                'max-lines': ['error', { max: 700, skipBlankLines: true, skipComments: true }],
-            },
-        },
         {
             name: 'brandlen/ts-type-aware',
             files: [...TS_FILES],

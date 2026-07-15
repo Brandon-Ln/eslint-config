@@ -17,7 +17,7 @@ export default brandlen({
 
 `typescript`、`vue`、`react`、`nest`、`prettier` 均支持 `true`、`false`、`'auto'`（默认），`node` 默认为 `false`。`typescript` 在 `'auto'` 时按项目是否安装 TypeScript 启用；设为 `false` 会忽略独立的 TS 文件，设为 `true` 则强制启用。
 
-启用 TS 后保留原有的 JS/TS 混合规则与类型感知 lint。Vue 始终保留 Vue lint；关闭 TS 时，`<script lang="ts">` 只做语法解析。
+启用 TS 后保留原有的 JS/TS 混合规则与类型感知 lint。Vue 始终保留 Vue lint。
 
 ## 忽略文件
 

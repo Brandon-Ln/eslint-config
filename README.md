@@ -17,7 +17,7 @@ export default brandlen({
 
 `typescript`, `vue`, `react`, `nest`, and `prettier` support `true`, `false`, and `'auto'` (default); `node` defaults to `false`. In `'auto'` mode, TypeScript linting follows whether the project installs TypeScript; `false` ignores standalone TS files and `true` forces it on.
 
-Enabled TypeScript keeps the existing mixed JS/TS rules and type-aware linting. Vue linting always remains active; with TypeScript off, `<script lang="ts">` is parsed for syntax only.
+Enabled TypeScript keeps the existing mixed JS/TS rules and type-aware linting. Vue linting always remains active.
 
 ## Ignoring files
 

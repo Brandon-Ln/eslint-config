@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import { ESLint } from 'eslint'
 import { describe, expect, it } from 'vitest'
 
+import { ALL_CODE_FILES } from '../src/constants.js'
 import brandlen from '../src/index.js'
 
 import { configNames, hasNodeGlobals, withProject } from './test-utils.js'
@@ -86,6 +87,32 @@ describe.sequential('brandlen config factory', () => {
             expect(await eslint.isPathIgnored(tsFile)).toBe(true)
             expect(await eslintWithRewrittenIgnores.isPathIgnored(tsFile)).toBe(true)
             expect(jsResult?.messages).not.toContainEqual(expect.objectContaining({ ruleId: '@typescript-eslint/no-require-imports' }))
+        })
+    })
+
+    it('always applies source-code-size rules to JavaScript without TypeScript', async () => {
+        await withProject({ name: 'javascript-size-rules', dependencies: {} }, async (project) => {
+            const sourceFile = project.writeFile('src/feature.js', 'export const feature = true\n')
+            const configs = brandlen({ typescript: false, vue: false, react: false, nest: false })
+            const sourceSizeConfig = configs.find((config) => config.name === 'brandlen/source-code-size')
+            const eslint = new ESLint({
+                cwd: project.directory,
+                overrideConfig: configs,
+                overrideConfigFile: true,
+            })
+
+            expect(sourceSizeConfig).toMatchObject({
+                files: [...ALL_CODE_FILES],
+                rules: {
+                    complexity: ['error', { max: 15, variant: 'classic' }],
+                    'max-lines': ['error', { max: 700, skipBlankLines: true, skipComments: true }],
+                },
+            })
+            expect((await eslint.calculateConfigForFile(sourceFile))?.rules.complexity).toEqual([2, { max: 15, variant: 'classic' }])
+            expect((await eslint.calculateConfigForFile(sourceFile))?.rules['max-lines']).toEqual([
+                2,
+                { max: 700, skipBlankLines: true, skipComments: true },
+            ])
         })
     })
 
@@ -267,6 +294,27 @@ describe.sequential('brandlen config factory', () => {
         })
     })
 
+    it('keeps Vue rules out of JavaScript with and without TypeScript', async () => {
+        await withProject({ name: 'vue-scope', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
+            project.addPackage('vue', '3.5.0')
+            const sourceFile = project.writeFile('src/plain.js', 'export const value = 1\n')
+            const createEslint = (typescript: boolean): ESLint => new ESLint({
+                cwd: project.directory,
+                overrideConfig: brandlen({ typescript, vue: true, react: false, nest: false }),
+                overrideConfigFile: true,
+            })
+
+            const [withoutTypeScript, withTypeScript] = await Promise.all([
+                createEslint(false).calculateConfigForFile(sourceFile),
+                createEslint(true).calculateConfigForFile(sourceFile),
+            ])
+
+            expect(withoutTypeScript?.rules['vue/multi-word-component-names']).toBeUndefined()
+            expect(withTypeScript?.rules['vue/multi-word-component-names']).toBeUndefined()
+        })
+    })
+
     it('lints TSX with browser globals and React hooks rules', async () => {
         await withProject({ name: 'react-project', dependencies: {} }, async (project) => {
             project.addPackage('typescript', '6.0.0')
@@ -300,6 +348,40 @@ describe.sequential('brandlen config factory', () => {
             expect(result?.fatalErrorCount).toBe(0)
             expect(result?.messages).toContainEqual(expect.objectContaining({ ruleId: 'react-hooks/rules-of-hooks' }))
             expect(result?.messages).not.toContainEqual(expect.objectContaining({ ruleId: 'no-undef' }))
+        })
+    })
+
+    it('lints hooks in all JavaScript and TypeScript file variants', async () => {
+        await withProject({ name: 'react-hooks-files', dependencies: {} }, async (project) => {
+            project.addPackage('typescript', '6.0.0')
+            project.addPackage('react', '19.2.0')
+            const sourceFile = project.writeFile('src/useFeature.ts', [
+                "import { useEffect } from 'react'",
+                '',
+                'export function useFeature(enabled: boolean): void {',
+                '    if (enabled) {',
+                '        useEffect(() => undefined, [])',
+                '    }',
+                '}',
+                '',
+            ].join('\n'))
+            const eslint = new ESLint({
+                cwd: project.directory,
+                overrideConfig: brandlen({ vue: false, react: true, nest: false }),
+                overrideConfigFile: true,
+            })
+
+            const [result] = await eslint.lintFiles([sourceFile])
+            const configs = await Promise.all([
+                sourceFile,
+                ...['src/useFeature.js', 'src/useFeature.mjs', 'src/useFeature.cjs', 'src/useFeature.mts', 'src/useFeature.cts']
+                    .map((file) => project.writeFile(file, 'export const value = true\n')),
+            ].map(async (file) => eslint.calculateConfigForFile(file)))
+
+            expect(result?.messages).toContainEqual(expect.objectContaining({ ruleId: 'react-hooks/rules-of-hooks' }))
+            configs.forEach((config) => {
+                expect(config?.rules['react-hooks/rules-of-hooks']).toEqual([2])
+            })
         })
     })
 

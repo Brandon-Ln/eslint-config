@@ -6,6 +6,7 @@ import { createNestConfigs } from './configs/nest.js'
 import { createNodeConfigs } from './configs/node.js'
 import { createPrettierConfigs } from './configs/prettier.js'
 import { createReactConfigs } from './configs/react.js'
+import { createSourceCodeSizeConfigs } from './configs/source-code-size.js'
 import { createTypeScriptConfigs } from './configs/typescript.js'
 import { createVueConfigs } from './configs/vue.js'
 import { resolveFeature, resolveTypeScript, resolveVue } from './detect.js'
@@ -28,8 +29,9 @@ export default function brandlen(options: BrandlenOptions = {}): PublicFlatConfi
     const nestEnabled = resolveFeature(options.nest ?? 'auto', 'Nest', '@nestjs/common', cwd)
     const prettierEnabled = resolveFeature(options.prettier ?? 'auto', 'Prettier', 'prettier', cwd)
 
-    // 基础配置始终注入：核心通用规则与 import 规则；TypeScript 按开关决定。
+    // 基础配置始终注入：核心通用规则与源码规模约束；TypeScript 按开关决定。
     const configs: FlatConfig[] = [...createCoreConfigs(cwd, options.ignores)]
+    configs.push(...createSourceCodeSizeConfigs())
 
     if (typescriptEnabled) {
         // 保持既有混合项目行为：typescript-eslint recommended 同时覆盖 JS 与 TS。
