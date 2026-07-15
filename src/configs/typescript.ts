@@ -13,14 +13,14 @@ const projectRequire = createRequire(import.meta.url)
  * 例如强制类型导入分离、类成员之间留空行等。
  */
 const customizedTsRules = {
-    '@typescript-eslint/consistent-type-imports': [
-        'error',
-        {
-            fixStyle: 'separate-type-imports',
-            prefer: 'type-imports',
-        },
-    ],
-    'lines-between-class-members': ['warn', 'always'],
+  '@typescript-eslint/consistent-type-imports': [
+    'error',
+    {
+      fixStyle: 'separate-type-imports',
+      prefer: 'type-imports',
+    },
+  ],
+  'lines-between-class-members': ['warn', 'always'],
 } satisfies Linter.RulesRecord
 
 /**
@@ -28,10 +28,10 @@ const customizedTsRules = {
  * 需配合 type-aware parser（projectService）才能生效。
  */
 const customizedTsRulesWithTypeInfo = {
-    '@typescript-eslint/no-deprecated': 'warn',
-    '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-    '@typescript-eslint/unified-signatures': ['error', { ignoreDifferentlyNamedParameters: true }],
-    '@typescript-eslint/no-non-null-assertion': 'off',
+  '@typescript-eslint/no-deprecated': 'warn',
+  '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+  '@typescript-eslint/unified-signatures': ['error', { ignoreDifferentlyNamedParameters: true }],
+  '@typescript-eslint/no-non-null-assertion': 'off',
 } satisfies Linter.RulesRecord
 
 /**
@@ -43,30 +43,33 @@ const customizedTsRulesWithTypeInfo = {
  *    并通过 `projectService` 关联 tsconfig，`allowDefaultProject` 兜底根目录配置文件
  */
 export function createTypeScriptConfigs(cwd: string): FlatConfig[] {
-    const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
-    return [
-        ...eslintTs.configs.recommended,
-        {
-            name: 'brandlen/ts-type-aware',
-            files: [...TS_FILES],
-            extends: [...eslintTs.configs.strictTypeChecked, ...eslintTs.configs.stylisticTypeCheckedOnly],
-            rules: {
-                ...customizedTsRules,
-                ...customizedTsRulesWithTypeInfo,
-            },
-            languageOptions: {
-                parserOptions: {
-                    projectService: {
-                        allowDefaultProject: ROOT_TYPED_CONFIG_FILES,
-                    },
-                    tsconfigRootDir: cwd,
-                },
-            },
+  const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
+  return [
+    ...eslintTs.configs.recommended,
+    {
+      name: 'brandlen/ts-type-aware',
+      files: [...TS_FILES],
+      extends: [
+        ...eslintTs.configs.strictTypeChecked,
+        ...eslintTs.configs.stylisticTypeCheckedOnly,
+      ],
+      rules: {
+        ...customizedTsRules,
+        ...customizedTsRulesWithTypeInfo,
+      },
+      languageOptions: {
+        parserOptions: {
+          projectService: {
+            allowDefaultProject: ROOT_TYPED_CONFIG_FILES,
+          },
+          tsconfigRootDir: cwd,
         },
-    ]
+      },
+    },
+  ]
 }
 
 export const typeScriptCustomRules: Linter.RulesRecord = {
-    ...customizedTsRules,
-    ...customizedTsRulesWithTypeInfo,
+  ...customizedTsRules,
+  ...customizedTsRulesWithTypeInfo,
 }

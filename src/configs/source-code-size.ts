@@ -10,14 +10,14 @@ import type { FlatConfig } from '../types.js'
  * 圈复杂度与有效代码行限制。
  */
 export function createSourceCodeSizeConfigs(): FlatConfig[] {
-    return [
-        {
-            name: 'brandlen/source-code-size',
-            files: [...ALL_CODE_FILES],
-            rules: {
-                complexity: ['error', { max: 15, variant: 'classic' }],
-                'max-lines': ['error', { max: 700, skipBlankLines: true, skipComments: true }],
-            },
-        } satisfies Linter.Config,
-    ]
+  return [
+    {
+      name: 'brandlen/source-code-size',
+      files: [...ALL_CODE_FILES],
+      rules: {
+        complexity: ['error', { max: 15, variant: 'classic' }],
+        'max-lines': ['error', { max: 700, skipBlankLines: true, skipComments: true }],
+      },
+    } satisfies Linter.Config,
+  ]
 }

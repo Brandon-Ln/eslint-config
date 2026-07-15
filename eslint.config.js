@@ -1,5 +1,5 @@
-import brandlen from "./dist/index.js";
+import brandlen from './dist/index.js'
 
 export default brandlen({
   node: true,
-});
+})

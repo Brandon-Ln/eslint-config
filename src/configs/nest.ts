@@ -3,7 +3,7 @@ import globals from 'globals'
 import type { FlatConfig } from '../types.js'
 
 const NEST_FILES = [
-    '**/*.{controller,service,module,guard,pipe,interceptor,filter,gateway,middleware,resolver}.{js,ts}',
+  '**/*.{controller,service,module,guard,pipe,interceptor,filter,gateway,middleware,resolver}.{js,ts}',
 ] as const
 
 /**
@@ -13,13 +13,13 @@ const NEST_FILES = [
  * 以避免在控制器、服务、模块、守卫等文件中误报 `process`、`Buffer` 等未定义。
  */
 export function createNestConfigs(): FlatConfig[] {
-    return [
-        {
-            name: 'brandlen/nest',
-            files: [...NEST_FILES],
-            languageOptions: {
-                globals: globals.node,
-            },
-        },
-    ]
+  return [
+    {
+      name: 'brandlen/nest',
+      files: [...NEST_FILES],
+      languageOptions: {
+        globals: globals.node,
+      },
+    },
+  ]
 }

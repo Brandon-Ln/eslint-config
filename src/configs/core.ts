@@ -14,9 +14,9 @@ import type { FlatConfig, UserIgnores } from '../types.js'
  * - 函数 → 把默认作为入参传出，以返回值作为最终清单（可改写或完全替换）。
  */
 function resolveIgnores(userIgnores: UserIgnores | undefined): string[] {
-    if (userIgnores === undefined) return [...BUILTIN_IGNORES]
-    if (typeof userIgnores === 'function') return userIgnores(BUILTIN_IGNORES)
-    return [...BUILTIN_IGNORES, ...userIgnores]
+  if (userIgnores === undefined) return [...BUILTIN_IGNORES]
+  if (typeof userIgnores === 'function') return userIgnores(BUILTIN_IGNORES)
+  return [...BUILTIN_IGNORES, ...userIgnores]
 }
 
 /**
@@ -28,22 +28,22 @@ function resolveIgnores(userIgnores: UserIgnores | undefined): string[] {
  * - `@eslint/js` 的推荐规则集
  */
 export function createCoreConfigs(cwd: string, userIgnores?: UserIgnores): FlatConfig[] {
-    const gitignorePath = path.join(cwd, '.gitignore')
-    const configs: FlatConfig[] = []
+  const gitignorePath = path.join(cwd, '.gitignore')
+  const configs: FlatConfig[] = []
 
-    if (fs.existsSync(gitignorePath)) {
-        configs.push(includeIgnoreFile(gitignorePath, 'brandlen/apply-gitignore'))
-    }
+  if (fs.existsSync(gitignorePath)) {
+    configs.push(includeIgnoreFile(gitignorePath, 'brandlen/apply-gitignore'))
+  }
 
-    configs.push(
-        {
-            name: 'brandlen/ignores',
-            ignores: resolveIgnores(userIgnores),
-        },
-        eslintJs.configs.recommended,
-    )
+  configs.push(
+    {
+      name: 'brandlen/ignores',
+      ignores: resolveIgnores(userIgnores),
+    },
+    eslintJs.configs.recommended,
+  )
 
-    return configs
+  return configs
 }
 
 /**
@@ -53,10 +53,10 @@ export function createCoreConfigs(cwd: string, userIgnores?: UserIgnores): FlatC
  * ignores 回调返回的新数组而重新让 TS 文件落入 JS parser。
  */
 export function createTypeScriptIgnoreConfigs(): FlatConfig[] {
-    return [
-        {
-            name: 'brandlen/ignore-typescript',
-            ignores: [...TS_FILES],
-        },
-    ]
+  return [
+    {
+      name: 'brandlen/ignore-typescript',
+      ignores: [...TS_FILES],
+    },
+  ]
 }

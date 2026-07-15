@@ -23,67 +23,69 @@ const projectRequire = createRequire(import.meta.url)
  *   注入 TS parser、类型感知规则与 projectService。
  */
 export function createVueConfigs(cwd: string, typescriptEnabled: boolean): FlatConfig[] {
-    const vueRecommendedConfigs: FlatConfig[] = vuePlugin.configs['flat/recommended']
-        .map((config) => ({
-            ...config,
-            files: config.files ?? [...VUE_FILES],
-        }))
+  const vueRecommendedConfigs: FlatConfig[] = vuePlugin.configs['flat/recommended'].map(
+    (config) => ({
+      ...config,
+      files: config.files ?? [...VUE_FILES],
+    }),
+  )
 
-    if (!typescriptEnabled) {
-        return [
-            ...vueRecommendedConfigs,
-            {
-                name: 'brandlen/vue',
-                files: [...VUE_FILES],
-                languageOptions: {
-                    globals: globals.browser,
-                },
-            } satisfies Linter.Config,
-        ]
-    }
-
-    const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
-    const { defineConfigWithVueTs, vueTsConfigs } = projectRequire('@vue/eslint-config-typescript') as
-        typeof VueEslintConfigTypeScript
-
-    const baseConfigs: FlatConfig[] = [
-        {
-            name: 'brandlen/vue',
-            files: [...VUE_FILES],
-            languageOptions: {
-                parserOptions: {
-                    parser: eslintTs.parser,
-                },
-                globals: globals.browser,
-            },
-        } satisfies Linter.Config,
+  if (!typescriptEnabled) {
+    return [
+      ...vueRecommendedConfigs,
+      {
+        name: 'brandlen/vue',
+        files: [...VUE_FILES],
+        languageOptions: {
+          globals: globals.browser,
+        },
+      } satisfies Linter.Config,
     ]
+  }
 
-    const typeAwareConfigs: FlatConfig[] = [
-        {
-            name: 'brandlen/vue-type-aware',
-            files: [...VUE_FILES],
-            rules: typeScriptCustomRules,
-            languageOptions: {
-                parserOptions: {
-                    parser: eslintTs.parser,
-                    projectService: true,
-                    tsconfigRootDir: cwd,
-                },
-                globals: globals.browser,
-            },
-        } satisfies Linter.Config,
-    ]
+  const eslintTs = projectRequire('typescript-eslint') as typeof TypeScriptESLint
+  const { defineConfigWithVueTs, vueTsConfigs } = projectRequire(
+    '@vue/eslint-config-typescript',
+  ) as typeof VueEslintConfigTypeScript
 
-    // @vue/eslint-config-typescript exposes @typescript-eslint/utils' config
-    // type, whereas this package publicly returns ESLint's Linter.Config.
-    // The helper has normalized these configs at runtime; retain this single
-    // compatibility boundary until the upstream declarations converge.
-    return defineConfigWithVueTs(
-        vueRecommendedConfigs,
-        vueTsConfigs.strictTypeChecked,
-        vueTsConfigs.stylisticTypeCheckedOnly,
-        ...baseConfigs,
-        ...typeAwareConfigs,
-    ) as FlatConfig[]
+  const baseConfigs: FlatConfig[] = [
+    {
+      name: 'brandlen/vue',
+      files: [...VUE_FILES],
+      languageOptions: {
+        parserOptions: {
+          parser: eslintTs.parser,
+        },
+        globals: globals.browser,
+      },
+    } satisfies Linter.Config,
+  ]
+
+  const typeAwareConfigs: FlatConfig[] = [
+    {
+      name: 'brandlen/vue-type-aware',
+      files: [...VUE_FILES],
+      rules: typeScriptCustomRules,
+      languageOptions: {
+        parserOptions: {
+          parser: eslintTs.parser,
+          projectService: true,
+          tsconfigRootDir: cwd,
+        },
+        globals: globals.browser,
+      },
+    } satisfies Linter.Config,
+  ]
+
+  // @vue/eslint-config-typescript exposes @typescript-eslint/utils' config
+  // type, whereas this package publicly returns ESLint's Linter.Config.
+  // The helper has normalized these configs at runtime; retain this single
+  // compatibility boundary until the upstream declarations converge.
+  return defineConfigWithVueTs(
+    vueRecommendedConfigs,
+    vueTsConfigs.strictTypeChecked,
+    vueTsConfigs.stylisticTypeCheckedOnly,
+    ...baseConfigs,
+    ...typeAwareConfigs,
+  ) as FlatConfig[]
 }

@@ -12,29 +12,29 @@ import type { FlatConfig } from '../types.js'
  * 同时启用 `eslint-plugin-import` 强制 `export` 出现在文件末尾。
  */
 export function createImportConfigs(): FlatConfig[] {
-    return [
-        {
-            name: 'brandlen/imports',
-            files: [...ALL_CODE_FILES],
-            plugins: {
-                'simple-import-sort': simpleImportSort,
-                import: importPlugin,
-            },
-            rules: {
-                'simple-import-sort/imports': 'error',
-                'simple-import-sort/exports': 'error',
-                'sort-imports': 'off',
-                'import/order': 'off',
-                'import/exports-last': 'error',
-                'import/no-duplicates': 'error',
-                'import/no-self-import': 'error',
-                'import/no-useless-path-segments': 'error',
-                'import/no-mutable-exports': 'error',
-                'import/no-empty-named-blocks': 'error',
-                'import/no-import-module-exports': 'error',
-                'import/max-dependencies': ['error', { max: 20 }],
-                'import/export': 'error',
-            },
-        },
-    ]
+  return [
+    {
+      name: 'brandlen/imports',
+      files: [...ALL_CODE_FILES],
+      plugins: {
+        'simple-import-sort': simpleImportSort,
+        import: importPlugin,
+      },
+      rules: {
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
+        'sort-imports': 'off',
+        'import/order': 'off',
+        'import/exports-last': 'error',
+        'import/no-duplicates': 'error',
+        'import/no-self-import': 'error',
+        'import/no-useless-path-segments': 'error',
+        'import/no-mutable-exports': 'error',
+        'import/no-empty-named-blocks': 'error',
+        'import/no-import-module-exports': 'error',
+        'import/max-dependencies': ['error', { max: 20 }],
+        'import/export': 'error',
+      },
+    },
+  ]
 }

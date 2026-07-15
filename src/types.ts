@@ -25,39 +25,39 @@ export type UserIgnores = string[] | ((originals: DefaultIgnores) => string[])
  * `vue`、`react`、`nest` 与 `typescript` 未传入时采用默认值 `'auto'`。
  */
 export interface BrandlenOptions {
-    /**
-     * 全局忽略 globs，与 ESLint flat-config 的 `ignores` 字段同义：
-     * - 数组形式：追加到 brandlen 内置默认 ignores（`.agents`/`.codex` skills 目录
-     *   + 测试目录），不替换；项目 `.gitignore`（若存在）仍会独立并入。
-     * - 函数形式：`(originals) => string[]`，把内置默认 ignores 作为入参传出，
-     *   返回值作为最终 ignores；可借此改写或完全替换默认清单（与 antfu 行为一致）。
-     *
-     * 仅用于"扩展排除"，不用于"收窄源码范围"。如需只检测某些目录，
-     * 推荐在 `package.json` 的 lint 脚本里以 CLI 路径参数指定，例如
-     * `eslint src/ scripts/`，更符合 ESLint flat-config 的设计哲学。
-     *
-     * @default BUILTIN_IGNORES（`.agents`/`.codex` skills 目录 + 测试目录）
-     */
-    ignores?: UserIgnores
+  /**
+   * 全局忽略 globs，与 ESLint flat-config 的 `ignores` 字段同义：
+   * - 数组形式：追加到 brandlen 内置默认 ignores（`.agents`/`.codex` skills 目录
+   *   + 测试目录），不替换；项目 `.gitignore`（若存在）仍会独立并入。
+   * - 函数形式：`(originals) => string[]`，把内置默认 ignores 作为入参传出，
+   *   返回值作为最终 ignores；可借此改写或完全替换默认清单（与 antfu 行为一致）。
+   *
+   * 仅用于"扩展排除"，不用于"收窄源码范围"。如需只检测某些目录，
+   * 推荐在 `package.json` 的 lint 脚本里以 CLI 路径参数指定，例如
+   * `eslint src/ scripts/`，更符合 ESLint flat-config 的设计哲学。
+   *
+   * @default BUILTIN_IGNORES（`.agents`/`.codex` skills 目录 + 测试目录）
+   */
+  ignores?: UserIgnores
 
-    /** 是否为全部受管代码文件注入 Node.js 运行时全局变量，默认关闭。 */
-    node?: boolean
-    /** 是否启用 TypeScript parser、规则与类型感知 lint，默认按项目依赖自动探测。 */
-    typescript?: Enabled
-    vue?: Enabled
-    react?: Enabled
-    nest?: Enabled
-    /**
-     * 是否在配置数组末尾追加 `eslint-config-prettier`，关闭所有与 Prettier
-     * 冲突的格式化规则（含 `vue/*`、`react/*`、`@typescript-eslint/*` 等触发面）。
-     *
-     * 默认 `'auto'`：探测到项目已安装 `prettier` 包时自动注入，
-     * 并严格置于配置数组最末（`eslint-config-prettier` 的硬性要求）；
-     * 若已装 Prettier 却不想放弃这些 ESLint 格式检查，传 `false` 显式跳过。
-     *
-     * @default 'auto'
-     */
-    prettier?: Enabled
+  /** 是否为全部受管代码文件注入 Node.js 运行时全局变量，默认关闭。 */
+  node?: boolean
+  /** 是否启用 TypeScript parser、规则与类型感知 lint，默认按项目依赖自动探测。 */
+  typescript?: Enabled
+  vue?: Enabled
+  react?: Enabled
+  nest?: Enabled
+  /**
+   * 是否在配置数组末尾追加 `eslint-config-prettier`，关闭所有与 Prettier
+   * 冲突的格式化规则（含 `vue/*`、`react/*`、`@typescript-eslint/*` 等触发面）。
+   *
+   * 默认 `'auto'`：探测到项目已安装 `prettier` 包时自动注入，
+   * 并严格置于配置数组最末（`eslint-config-prettier` 的硬性要求）；
+   * 若已装 Prettier 却不想放弃这些 ESLint 格式检查，传 `false` 显式跳过。
+   *
+   * @default 'auto'
+   */
+  prettier?: Enabled
 }
 
 /**
@@ -65,8 +65,8 @@ export interface BrandlenOptions {
  * boundary explicit while matching ESLint's mutable file-pattern input.
  */
 export interface FlatConfig extends Omit<Linter.Config, 'rules'> {
-    rules?: object
-    extends?: Linter.Config[]
+  rules?: object
+  extends?: Linter.Config[]
 }
 
 /**

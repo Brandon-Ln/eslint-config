@@ -9,9 +9,9 @@
 import brandlen from '@brandlen/eslint-config'
 
 export default brandlen({
-    node: true,
-    react: false,
-    nest: false,
+  node: true,
+  react: false,
+  nest: false,
 })
 ```
 

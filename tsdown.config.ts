@@ -1,19 +1,19 @@
-import { defineConfig } from "tsdown";
+import { defineConfig } from 'tsdown'
 
 const tsdownConfig: ReturnType<typeof defineConfig> = defineConfig({
-  entry: ["src/index.ts"],
-  format: ["esm"],
-  outDir: "dist",
+  entry: ['src/index.ts'],
+  format: ['esm'],
+  outDir: 'dist',
   clean: true,
   fixedExtension: false,
-  target: "es2022",
+  target: 'es2022',
   dts: true,
   exports: {
     packageJson: false,
   },
   publint: {
-    level: "error",
+    level: 'error',
   },
-});
+})
 
-export default tsdownConfig;
+export default tsdownConfig

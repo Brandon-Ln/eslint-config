@@ -18,37 +18,39 @@ const REACT_HOOK_FILES = [...JS_FILES, ...TS_FILES]
  *   以覆盖不含 JSX 的自定义 Hook
  */
 export function createReactConfigs(): FlatConfig[] {
-    const recommended = reactPlugin.configs.flat.recommended
-    const jsxRuntime = reactPlugin.configs.flat['jsx-runtime']
+  const recommended = reactPlugin.configs.flat.recommended
+  const jsxRuntime = reactPlugin.configs.flat['jsx-runtime']
 
-    if (!recommended || !jsxRuntime) {
-        throw new Error('@brandlen/eslint-config: eslint-plugin-react does not provide its required flat configs.')
-    }
+  if (!recommended || !jsxRuntime) {
+    throw new Error(
+      '@brandlen/eslint-config: eslint-plugin-react does not provide its required flat configs.',
+    )
+  }
 
-    return [
-        {
-            name: 'brandlen/react',
-            files: REACT_FILES,
-            ...recommended,
-            languageOptions: {
-                ...recommended.languageOptions,
-                globals: globals.browser,
-            },
-            settings: {
-                react: {
-                    version: 'detect',
-                },
-            },
+  return [
+    {
+      name: 'brandlen/react',
+      files: REACT_FILES,
+      ...recommended,
+      languageOptions: {
+        ...recommended.languageOptions,
+        globals: globals.browser,
+      },
+      settings: {
+        react: {
+          version: 'detect',
         },
-        {
-            name: 'brandlen/react-jsx-runtime',
-            files: REACT_FILES,
-            ...jsxRuntime,
-        },
-        {
-            ...reactHooksPlugin.configs.flat.recommended,
-            name: 'brandlen/react-hooks',
-            files: REACT_HOOK_FILES,
-        },
-    ]
+      },
+    },
+    {
+      name: 'brandlen/react-jsx-runtime',
+      files: REACT_FILES,
+      ...jsxRuntime,
+    },
+    {
+      ...reactHooksPlugin.configs.flat.recommended,
+      name: 'brandlen/react-hooks',
+      files: REACT_HOOK_FILES,
+    },
+  ]
 }

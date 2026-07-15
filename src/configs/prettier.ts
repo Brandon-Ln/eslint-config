@@ -15,10 +15,10 @@ import type { FlatConfig } from '../types.js'
  * `config-prettier` 且无法被前置覆盖；改用根导出取 `rules` 兜底即可。
  */
 export function createPrettierConfigs(): FlatConfig[] {
-    return [
-        {
-            name: 'brandlen/prettier',
-            rules: { ...eslintConfigPrettier.rules },
-        },
-    ]
+  return [
+    {
+      name: 'brandlen/prettier',
+      rules: { ...eslintConfigPrettier.rules },
+    },
+  ]
 }

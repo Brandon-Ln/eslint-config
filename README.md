@@ -9,9 +9,9 @@ A personal ESLint 9+ Flat Config: enables JavaScript baseline rules, auto-detect
 import brandlen from '@brandlen/eslint-config'
 
 export default brandlen({
-    node: true,
-    react: false,
-    nest: false,
+  node: true,
+  react: false,
+  nest: false,
 })
 ```
 

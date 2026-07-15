@@ -4,11 +4,16 @@ import path from 'node:path'
 import type { Enabled } from './types.js'
 
 interface InstalledPackage {
-    version: string
+  version: string
 }
 
 function isInstalledPackage(value: unknown): value is InstalledPackage {
-    return typeof value === 'object' && value !== null && 'version' in value && typeof value.version === 'string'
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'version' in value &&
+    typeof value.version === 'string'
+  )
 }
 
 /**
@@ -19,7 +24,7 @@ function isInstalledPackage(value: unknown): value is InstalledPackage {
  * 需要一个文件路径来确定解析起点，而该路径仅需提供正确的目录上下文即可。
  */
 function getProjectRequire(cwd: string): NodeJS.Require {
-    return createRequire(path.join(cwd, '__brandlen_eslint_config__.cjs'))
+  return createRequire(path.join(cwd, '__brandlen_eslint_config__.cjs'))
 }
 
 /**
@@ -27,20 +32,20 @@ function getProjectRequire(cwd: string): NodeJS.Require {
  * 若包未安装则返回 `undefined`，不抛错以便调用方做容错处理。
  */
 function findInstalledPackage(packageName: string, cwd: string): InstalledPackage | undefined {
-    try {
-        const packageJsonPath = getProjectRequire(cwd).resolve(`${packageName}/package.json`)
-        const packageJson: unknown = getProjectRequire(cwd)(packageJsonPath)
-        return isInstalledPackage(packageJson) ? packageJson : undefined
-    } catch {
-        return undefined
-    }
+  try {
+    const packageJsonPath = getProjectRequire(cwd).resolve(`${packageName}/package.json`)
+    const packageJson: unknown = getProjectRequire(cwd)(packageJsonPath)
+    return isInstalledPackage(packageJson) ? packageJson : undefined
+  } catch {
+    return undefined
+  }
 }
 
 /**
  * 构造当「显式启用某特性但对应依赖缺失」时的错误提示信息。
  */
 function describeFeature(feature: string, dependency: string): string {
-    return `@brandlen/eslint-config: ${feature} is enabled, but ${dependency} is not installed from ${process.cwd()}.`
+  return `@brandlen/eslint-config: ${feature} is enabled, but ${dependency} is not installed from ${process.cwd()}.`
 }
 
 /**
@@ -52,22 +57,22 @@ function describeFeature(feature: string, dependency: string): string {
  * - `'auto'` / 未传：依据依赖是否安装自动决定
  */
 function resolveFeature(
-    option: Enabled | undefined,
-    feature: string,
-    dependency: string,
-    cwd: string,
+  option: Enabled | undefined,
+  feature: string,
+  dependency: string,
+  cwd: string,
 ): boolean {
-    if (option === false) {
-        return false
-    }
+  if (option === false) {
+    return false
+  }
 
-    const installed = findInstalledPackage(dependency, cwd)
+  const installed = findInstalledPackage(dependency, cwd)
 
-    if (option === true && !installed) {
-        throw new Error(describeFeature(feature, dependency))
-    }
+  if (option === true && !installed) {
+    throw new Error(describeFeature(feature, dependency))
+  }
 
-    return installed !== undefined
+  return installed !== undefined
 }
 
 /**
@@ -77,11 +82,11 @@ function resolveFeature(
  * 让 TypeScript parser 在实际 lint 文件时给出其原生错误。
  */
 function resolveTypeScript(option: Enabled | undefined, cwd: string): boolean {
-    if (option === false) {
-        return false
-    }
+  if (option === false) {
+    return false
+  }
 
-    return option === true || findInstalledPackage('typescript', cwd) !== undefined
+  return option === true || findInstalledPackage('typescript', cwd) !== undefined
 }
 
 /**
@@ -89,26 +94,28 @@ function resolveTypeScript(option: Enabled | undefined, cwd: string): boolean {
  * 若探测到 Vue 2 或解析失败，将抛出明确的错误信息。
  */
 function resolveVue(option: Enabled | undefined, cwd: string): boolean {
-    if (option === false) {
-        return false
-    }
+  if (option === false) {
+    return false
+  }
 
-    const vue = findInstalledPackage('vue', cwd)
+  const vue = findInstalledPackage('vue', cwd)
 
-    if (option === true && !vue) {
-        throw new Error(describeFeature('Vue', 'vue'))
-    }
+  if (option === true && !vue) {
+    throw new Error(describeFeature('Vue', 'vue'))
+  }
 
-    if (!vue) {
-        return false
-    }
+  if (!vue) {
+    return false
+  }
 
-    const majorVersion = Number.parseInt(vue.version.split('.')[0] ?? '', 10)
-    if (majorVersion !== 3) {
-        throw new Error(`@brandlen/eslint-config: only Vue 3 is supported, but found vue@${vue.version}.`)
-    }
+  const majorVersion = Number.parseInt(vue.version.split('.')[0] ?? '', 10)
+  if (majorVersion !== 3) {
+    throw new Error(
+      `@brandlen/eslint-config: only Vue 3 is supported, but found vue@${vue.version}.`,
+    )
+  }
 
-    return true
+  return true
 }
 
 export { findInstalledPackage, resolveFeature, resolveTypeScript, resolveVue }
