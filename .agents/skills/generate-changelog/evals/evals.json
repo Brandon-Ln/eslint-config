@@ -1,0 +1,23 @@
+{
+  "skill_name": "generate-changelog",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请根据当前仓库从上一个 tag 到 HEAD 的改动更新 CHANGELOG.md。我要发布 0.3.0，仔细看每个提交的代码 diff，不要只抄提交信息。",
+      "expected_output": "Reads the reachable release range and each commit diff, then writes a Keep a Changelog entry for 0.3.0 while preserving previous entries.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我生成这次 release 的 changelog。版本号还没定。项目以前没有 CHANGELOG.md，但已经有 Git tag。",
+      "expected_output": "Asks for the target version before making changes; after receiving it, creates a standard CHANGELOG.md using the latest reachable tag as the baseline.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "更新 changelog 到 v2.0.0。注意其中有一个 feat!: 删除旧配置 API，以及两个只改测试的提交；请依据实际 diff 写面向用户的条目。",
+      "expected_output": "Produces a version 2.0.0 entry with a migration-aware breaking-change item and omits test-only noise after inspecting the diffs.",
+      "files": []
+    }
+  ]
+}
